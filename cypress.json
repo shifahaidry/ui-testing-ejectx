@@ -1,0 +1,16 @@
+{
+  "baseUrl": "https://test.ejectx.de",
+  "pageLoadTimeout": 120000,
+  "env": {
+    "tester_username": "enter your username here",
+    "tester_password": "enter your password here"
+  },
+  "reporter": "cypress-mochawesome-reporter",
+  "reporterOptions": {
+    "reportDir": "cypress/reports",
+    "charts": true,
+    "reportPageTitle": "Test Suite",
+    "embeddedScreenshots": true
+  },
+  "video": false
+}

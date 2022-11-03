@@ -1,0 +1,15 @@
+{
+  "name": "ejectx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Ahmed Fateen",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^8.5.0",
+    "cypress-mochawesome-reporter": "^2.3.0",
+    "mocha": "^9.1.2",
+    "prettier": "2.4.1"
+  }
+}
