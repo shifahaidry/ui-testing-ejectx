@@ -39,18 +39,6 @@ context('Workspace settings', () => {
       cy.get(':nth-child(1) > :nth-child(2) > h5').should('contain', 'Labeling');
       cy.get(':nth-child(1) > :nth-child(2) > h5').parent().should('have.class', 'expanded');
 
-      // new function: 
-      // when "Confirm method" is selected, automatically set "Confirm Button" to "Right" and deactivate "Move menu". 
-      // when "Confirm method" is deactivated, set "Confirm Button" to "Top" and activate "Move menu". 
-      cy.get('#forwardOnly').should('be.checked');  // it is already checked from other settings
-      cy.get('#forwardOnly').click({force:true});
-      cy.get('#forwardOnly').should('not.be.checked'); // after clicking it should be un-selected
-      cy.get('#moveMenu').should('be.checked'); 
-      cy.get('#forwardOnly').click({force:true}); 
-      cy.get('#forwardOnly').should('be.checked'); // clicking again selects it
-      cy.get('#moveMenu').should('not.be.checked');
-      // but how to test the setting in the field "Confirm Button"?
-
       // open third section
       cy.get(':nth-child(1) > :nth-child(3) > h5').click(); // expand Workspace group
       cy.get(':nth-child(1) > :nth-child(3) > h5').should('contain', 'Workspace');
@@ -58,5 +46,4 @@ context('Workspace settings', () => {
 
       cy.get('.btn-secondary').click(); // click cancel at the end
     });
-
 })

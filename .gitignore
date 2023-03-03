@@ -110,3 +110,11 @@ dist
 ehthumbs.db
 Icon?
 Thumbs.db
+
+# IDEs
+.vscode
+.idea
+
+# Cypress reports
+cypress/screenshots/*
+cypress/reports/*
