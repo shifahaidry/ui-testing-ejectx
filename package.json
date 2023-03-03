@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "setup": "npm ci",
+    "test-headless": "npx cypress run",
+    "test": "npx cypress open"
+  },
   "author": "Ahmed Fateen",
   "license": "ISC",
   "devDependencies": {
