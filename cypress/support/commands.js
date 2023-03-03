@@ -7,6 +7,7 @@ Cypress.Commands.add('login' , function() {
         body: { login: username, password: password },
       },{timeout:60000}).then(({ body }) => {
         window.localStorage.setItem('sessionToken', body.sessionToken);
+        window.localStorage.setItem('refreshToken', body.refreshToken);
       })
 
 })
