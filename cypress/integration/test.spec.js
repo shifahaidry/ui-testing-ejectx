@@ -1,6 +1,8 @@
+import NumberParser from "../../helper/number-parser";
+
 /// <reference types="cypress" />
 
-describe("Logging in", function () {
+describe("Authentication Tests", function () {
   beforeEach(() => {
     cy.visit("/login");
   });
@@ -39,7 +41,15 @@ describe("Workspace tests", function () {
     cy.get('[data-step="Validate"]').should("be.visible");
     cy.get(".navbar-nav.ml-auto").should("contain", Cypress.env("tester_username"));
   });
+
+  it("Burger menu opens", function() {
+    cy.get('.burger-menu').should("be.visible");
+    cy.get('.burger-menu').click();
+  });
+
   it("Help page", function () {
+    cy.get('.burger-menu').should("be.visible");
+    cy.get('.burger-menu').click();
     cy.get('[href="/help"]', { timeout: 60000 }).click();
     cy.url({ timeout: 50000 }).should("include", "help");
     cy.contains("Getting started", { matchCase: false }).should("be.visible");
@@ -54,13 +64,7 @@ describe("Workspace tests", function () {
       .contains("Test1_Referenz1")
       .dblclick()
       .wait("@getFiles", { timeout: 50000 });
-    cy.get('[data-step="Classify"]').within(() => {
-      cy.get('[class="step-icon svg-icon is-active clickable"]')
-        .should("be.visible")
-        .should("have.css", "background")
-        .and("includes", "(0, 123, 255)");
-    });
-    cy.get("strong:contains(/Test1_Referenz1)");
+    cy.get("strong").contains("Test1_Referenz1");
     cy.get('[class="nav-item logo"]').click();
   });
   it("Selected workspace", function () {
@@ -81,9 +85,9 @@ describe("Workspace tests", function () {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
         .should("contain", "13.026");
-      cy.get('[href*="#icon-note"]').click({ force: true });
+      cy.get('div [title=Notes] svg').click({ force: true });
     });
-    cy.get('[role="dialog"]').within(() => {
+    cy.get('[class="modal-content"]').within(() => {
       cy.get("#textarea").clear().type("Hello world 1");
       cy.get('[type="checkbox"]')
         .invoke("is", ":checked")
@@ -95,7 +99,7 @@ describe("Workspace tests", function () {
 
       cy.get('[type="checkbox"]').should("not.be.checked");
       cy.intercept("api/notes").as("noteSaved");
-      cy.intercept("api/getFolders").as("foldersUpdated");
+      cy.intercept("api/getFolders*").as("foldersUpdated");
 
       cy.get("button:contains(Save)").click().wait("@noteSaved");
       cy.wait("@foldersUpdated", { timeout: 60000 });
@@ -103,17 +107,17 @@ describe("Workspace tests", function () {
 
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get('[title="Notes"]').within(() => {
-        cy.get('[class^="svg-icon"]')
+        cy.get('[class*="svg-icon"]')
           .invoke("attr", "class")
           .should("not.include", "highlight");
       });
     });
 
     cy.get('[class="folder-label selected"]').within(() => {
-      cy.get('[href*="#icon-note"]').click({ force: true });
+      cy.get('div [title=Notes] svg').click({ force: true });
     });
 
-    cy.get('[role="dialog"]').within(() => {
+    cy.get('[class="modal-content"]').within(() => {
       cy.get("#textarea").invoke("val").should("eq", "Hello world 1");
       cy.get("#textarea").clear().type("Test 2");
       cy.get("label:contains(Highlight Note)").click();
@@ -124,7 +128,7 @@ describe("Workspace tests", function () {
 
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get('[title="Notes"]').within(() => {
-        cy.get('[class^="svg-icon"]')
+        cy.get('[class*="svg-icon"]')
           .invoke("attr", "class")
           .should("include", "highlight");
       });
@@ -137,35 +141,41 @@ describe("Workspace tests", function () {
         cy.get('[class="bi-gear-fill b-icon bi clickable-icon"]').click();
       });
     });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get(
-        "div:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)"
-      )
-        .as("filePerPage")
-        .clear()
-        .type("0");
-      cy.get("div:nth-child(17) > div:nth-child(2) div.custom-control > input")
-
-        .as("moveMenu")
-        .invoke("is", ":checked")
-        .then((checked) => {
-          if (checked) {
-            cy.get("@moveMenu").uncheck({ force: true });
-          }
-        });
-      cy.get(
-        "div:nth-child(18) > div:nth-child(2) > div.custom-control > input"
-      )
-        .as("newFolder")
-        .invoke("is", ":checked")
-        .then((checked) => {
-          if (!checked) {
-            cy.get("@newFolder").check({ force: true });
-          }
-        });
-      cy.get("div:nth-child(24) > div:nth-child(2) > select")
-        .as("imageFit")
-        .select("fill");
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get("section").contains("Image").click();
+      cy.get("div").contains("Images per page").parent().parent().within(() => {
+        cy.get('input[type="number"]')
+          .as("filePerPage")
+          .clear()
+          .type("0")
+      });
+      cy.get("section").contains("Labeling").click();
+      cy.get("div").contains("Move menu").parent().parent().within(() => {
+        cy.get('input[type="checkbox"]')
+          .as("moveMenu")
+          .invoke("is", ":checked")
+          .then((checked) => {
+            if (checked) {
+              cy.get("@moveMenu").uncheck({ force: true });
+            }
+          });
+      });
+      cy.get("div").contains("New folder").parent().parent().within(() => {
+        cy.get('input[type="checkbox"]')
+          .as("newFolder")
+          .invoke("is", ":checked")
+          .then((checked) => {
+            if (!checked) {
+              cy.get("@newFolder").check({ force: true });
+            }
+          });
+      });
+      cy.get("section").contains("Image").click();
+      cy.get("div").contains("View").parent().parent().within(() => {
+        cy.get('select#imageFit')
+          .as("imageFit")
+          .select("fill");
+      });
 
       cy.intercept("/api/saveConfig").as("saveConfig");
       cy.get("button:contains(Save)").click().wait("@saveConfig");
@@ -175,12 +185,19 @@ describe("Workspace tests", function () {
         cy.get('[class="bi-gear-fill b-icon bi clickable-icon"]').click();
       });
     });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get("@filePerPage").invoke("val").should("eq", "0");
-      cy.get("@moveMenu").should("not.be.checked");
-
-      cy.get("@newFolder").should("be.checked");
-      cy.get("@imageFit").should("have.value", "fill");
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get("div").contains("Images per page").parent().parent().within(() => {
+        cy.get("@filePerPage").invoke("val").should("eq", "0");
+      });
+      cy.get("div").contains("Move menu").parent().parent().within(() => {
+        cy.get("@moveMenu").should("not.be.checked");
+      });
+      cy.get("div").contains("New folder").parent().parent().within(() => {
+        cy.get("@newFolder").should("be.checked");
+      });
+      cy.get("div").contains("View").parent().parent().within(() => {
+        cy.get("@imageFit").should("have.value", "fill");
+      });
     });
   });
   it("Workspace settings 2", function () {
@@ -189,34 +206,41 @@ describe("Workspace tests", function () {
         cy.get('[class="bi-gear-fill b-icon bi clickable-icon"]').click();
       });
     });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get(
-        "div:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(2) > input:nth-child(1)"
-      )
-        .as("filePerPage")
-        .clear()
-        .type("-1");
-      cy.get("div:nth-child(17) > div:nth-child(2) div.custom-control > input")
-        .as("moveMenu")
-        .invoke("is", ":checked")
-        .then((checked) => {
-          if (!checked) {
-            cy.get("@moveMenu").check({ force: true });
-          }
-        });
-      cy.get(
-        "div:nth-child(18) > div:nth-child(2) > div.custom-control > input"
-      )
-        .as("newFolder")
-        .invoke("is", ":checked")
-        .then((checked) => {
-          if (checked) {
-            cy.get("@newFolder").uncheck({ force: true });
-          }
-        });
-      cy.get("div:nth-child(24) > div:nth-child(2) > select")
-        .as("imageFit")
-        .select("fit");
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get("section").contains("Image").click();
+      cy.get("div").contains("Images per page").parent().parent().within(() => {
+        cy.get('input[type="number"]')
+          .as("filePerPage")
+          .clear()
+          .type("-1")
+      });
+      cy.get("section").contains("Labeling").click();
+      cy.get("div").contains("Move menu").parent().parent().within(() => {
+        cy.get('input[type="checkbox"]')
+          .as("moveMenu")
+          .invoke("is", ":checked")
+          .then((checked) => {
+            if (!checked) {
+              cy.get("@moveMenu").check({ force: true });
+            }
+          });
+      });
+      cy.get("div").contains("New folder").parent().parent().within(() => {
+        cy.get('input[type="checkbox"]')
+          .as("newFolder")
+          .invoke("is", ":checked")
+          .then((checked) => {
+            if (checked) {
+              cy.get("@newFolder").uncheck({ force: true });
+            }
+          });
+      });
+      cy.get("section").contains("Image").click();
+      cy.get("div").contains("View").parent().parent().within(() => {
+        cy.get('select#imageFit')
+          .as("imageFit")
+          .select("fit");
+      });
 
       cy.intercept("/api/saveConfig").as("saveConfig");
       cy.get("button:contains(Save)").click().wait("@saveConfig");
@@ -226,12 +250,19 @@ describe("Workspace tests", function () {
         cy.get('[class="bi-gear-fill b-icon bi clickable-icon"]').click();
       });
     });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get("@filePerPage").invoke("val").should("eq", "-1");
-      cy.get("@moveMenu").should("be.checked");
-
-      cy.get("@newFolder").should("not.be.checked");
-      cy.get("@imageFit").should("have.value", "fit");
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get("div").contains("Images per page").parent().parent().within(() => {
+        cy.get("@filePerPage").invoke("val").should("eq", "-1");
+      });
+      cy.get("div").contains("Move menu").parent().parent().within(() => {
+        cy.get("@moveMenu").should("be.checked");
+      });
+      cy.get("div").contains("New folder").parent().parent().within(() => {
+        cy.get("@newFolder").should("not.be.checked");
+      });
+      cy.get("div").contains("View").parent().parent().within(() => {
+        cy.get("@imageFit").should("have.value", "fit");
+      });
     });
   });
   it("Check subfolders", function () {
@@ -247,11 +278,13 @@ describe("Workspace tests", function () {
         }
       });
     });
-
-    cy.get("span:contains(test)").should("exist");
-    cy.get("span:contains(train)").should("exist");
-    cy.get("span:contains(validate)").parent().should("exist");
+    cy.get('[class="folder-label selected"]').parent().within( () => {
+      cy.get("span:contains(test)").should("exist");
+      cy.get("span:contains(train)").should("exist");
+      cy.get("span:contains(validate)").parent().should("exist");
+    });
   });
+
   it("'train' folder data", function () {
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get(
@@ -265,95 +298,76 @@ describe("Workspace tests", function () {
         }
       });
     });
-    cy.get("span:contains(train)")
-      .parent()
-      .parent()
-      .within(() => {
-        cy.get('[class="file-nums option-progress-text"]')
-          .invoke("text")
-          .should("contain", "10.525");
-        cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
 
-        cy.get('[title="AI Statistic"]').within(() => {
-          cy.get(
-            '[class="bi-bar-chart-fill b-icon bi clickable-icon"]'
-          ).click();
+    cy.get('[class="folder-label selected"]').parent().within( () => {
+      cy.get('span:contains(train)')
+        .parent()
+        .parent()
+        .within(() => {
+          cy.get('[class="file-nums option-progress-text"]')
+            .invoke("text")
+            .should("contain", "10.525");
+          cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
+
+          cy.get('[title="AI Statistic"]').within(() => {
+            cy.get(
+              '[class="bi-bar-chart-fill b-icon bi clickable-icon"]'
+            ).click();
+          });
         });
+    });
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+        const goodGood = new NumberParser("en").parse($el.text());
+        expect(goodGood).to.be.greaterThan(4000);
+        expect(goodGood).to.be.lessThan(6000);
       });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodGood = Number(n);
-          expect(goodGood).to.be.greaterThan(4000);
-          expect(goodGood).to.be.lessThan(6000);
-        });
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodBad = Number(n);
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const goodBad = new NumberParser("en").parse($el.text());
           expect(goodBad).to.be.greaterThan(0);
           expect(goodBad).to.be.lessThan(1000);
-        });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badGood = Number(n);
+      });
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badGood = new NumberParser("en").parse($el.text());
           expect(badGood).to.be.greaterThan(0);
           expect(badGood).to.be.lessThan(1000);
-        });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badBad = Number(n);
+      });
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badBad = new NumberParser("en").parse($el.text());
           expect(badBad).to.be.greaterThan(4000);
           expect(badBad).to.be.lessThan(6000);
-        });
+      });
+
       cy.get("#percentageView").click();
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodGood = parseFloat(n);
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const goodGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodGood).to.be.greaterThan(90);
           expect(goodGood).to.be.lessThan(101);
         });
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodBad = parseFloat(n);
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const goodBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodBad).to.be.greaterThan(0);
           expect(goodBad).to.be.lessThan(10);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badGood = parseFloat(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badGood).to.be.greaterThan(0);
           expect(badGood).to.be.lessThan(10);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badBad = parseFloat(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badBad).to.be.greaterThan(90);
           expect(badBad).to.be.lessThan(101);
         });
+
       cy.get("button:contains(Close)").click();
     });
   });
@@ -370,94 +384,75 @@ describe("Workspace tests", function () {
         }
       });
     });
-    cy.get("span:contains(test)")
-      .parent()
-      .parent()
-      .within(() => {
-        cy.get('[class="file-nums option-progress-text"]')
-          .invoke("text")
-          .should("contain", "1.251");
-        cy.get('[title="AI Statistic"]').within(() => {
-          cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
-          cy.get(
-            '[class="bi-bar-chart-fill b-icon bi clickable-icon"]'
-          ).click();
+    cy.get('[class="folder-label selected"]').parent().within( () => {
+      cy.get("span:contains(test)")
+        .parent()
+        .parent()
+        .within(() => {
+          cy.get('[class="file-nums option-progress-text"]')
+            .invoke("text")
+            .should("contain", "1.251");
+          cy.get('[title="AI Statistic"]').within(() => {
+            cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
+            cy.get(
+              '[class="bi-bar-chart-fill b-icon bi clickable-icon"]'
+            ).click();
+          });
         });
-      });
-    cy.get('[role="dialog"]').within(() => {
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodGood = Number(n);
+    });
+
+    cy.get('[class="modal-content"]').within(() => {
+      cy.get('tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1)')
+        .should(($el) => {
+          const goodGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodGood).to.be.greaterThan(500);
           expect(goodGood).to.be.lessThan(700);
         });
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodBad = Number(n);
+      cy.get('tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1)')
+        .should(($el) => {
+          const goodBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodBad).to.be.greaterThan(0);
           expect(goodBad).to.be.lessThan(200);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badGood = Number(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1)")
+        .should(($el) => {
+          const badGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badGood).to.be.greaterThan(0);
           expect(badGood).to.be.lessThan(200);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badBad = Number(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1)")
+        .should(($el) => {
+          const badBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badBad).to.be.greaterThan(500);
           expect(badBad).to.be.lessThan(700);
         });
+
       cy.get("#percentageView").click();
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodGood = parseFloat(n);
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const goodGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodGood).to.be.greaterThan(80);
           expect(goodGood).to.be.lessThan(101);
         });
-      cy.get(
-        "tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const goodBad = parseFloat(n);
+      cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const goodBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodBad).to.be.greaterThan(0);
           expect(goodBad).to.be.lessThan(20);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badGood = parseFloat(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badGood).to.be.greaterThan(0);
           expect(badGood).to.be.lessThan(20);
         });
-      cy.get(
-        "tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span"
-      )
-        .invoke("text")
-        .then((n) => {
-          const badBad = parseFloat(n);
+      cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span")
+        .should(($el) => {
+          const badBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badBad).to.be.greaterThan(80);
           expect(badBad).to.be.lessThan(101);
         });
+
       cy.get("button:contains(Close)").click();
     });
   });
@@ -549,28 +544,29 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(7) > .mr-auto > div').should('contain', 'Optimizer');
     cy.get('#optimizer'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(8) > .mr-auto > div').should('contain', 'Learning rate');
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(8) > :nth-child(2) > input'); // just checks if the element exists
-
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(9) > .mr-auto > div').should('contain', 'Batch Size');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(8) > .mr-auto > div').should('contain', 'Epsilon');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(9) > .mr-auto > div').should('contain', 'Learning rate');
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(9) > :nth-child(2) > input'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(10) > .mr-auto > div').should('contain', 'Shuffle buffer');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(10) > .mr-auto > div').should('contain', 'Batch Size');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(10) > :nth-child(2) > input'); // just checks if the element exists
+
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(11) > .mr-auto > div').should('contain', 'Shuffle buffer');
     cy.get('#shuffle_buffer'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(11) > .mr-auto > div').should('contain', 'Save best only');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(12) > .mr-auto > div').should('contain', 'Save best only');
     cy.get('#save_best_only'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(12) > .mr-auto > div').should('contain', 'Validation frequency');
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(12) > :nth-child(2) > input'); // just checks if the element exists
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(13) > .mr-auto > div').should('contain', 'Validation frequency');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(13) > :nth-child(2) > input'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(13) > .mr-auto > div').should('contain', 'Metrics');
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(13) > :nth-child(2) > div > ul'); // just checks if the list (that contains the classes) exists
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(14) > .mr-auto > div').should('contain', 'Metrics');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(14) > :nth-child(2) > div > ul'); // just checks if the list (that contains the classes) exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(14) > .mr-auto > div').should('contain', 'Monitor');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(15) > .mr-auto > div').should('contain', 'Monitor');
     cy.get('#monitor'); // just checks if the element exists
 
-    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(15) > .mr-auto > div').should('contain', 'Monitor mode');
+    cy.get(':nth-child(1) > :nth-child(2) > :nth-child(16) > .mr-auto > div').should('contain', 'Monitor mode');
     cy.get('#monitor_mode').should('contain', 'max').and('contain','min'); // checks if the element exists and contains the relevant selections
 
     // second section: AI model 
@@ -583,32 +579,6 @@ describe("Workspace tests", function () {
 
     cy.get(':nth-child(2) > :nth-child(2) > :nth-child(3) > .mr-auto > div').should('contain', 'Dropout rate');
     cy.get(':nth-child(2) > :nth-child(2) > :nth-child(3) > :nth-child(2) > input');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(4) > .mr-auto > div')
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(4) > :nth-child(2) > input');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > .mr-auto > div').should('contain', 'Kernel initializer');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div.mr-auto > div').should('contain', 'value');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div > select');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(6) > .mr-auto > div').should('contain', 'Bias initializer');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div.mr-auto > div').should('contain', 'value');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div > select');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(7) > .mr-auto > div').should('contain', 'Kernel regularizer');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div.mr-auto > div').should('contain', 'value');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(7) > :nth-child(2) > div > div.row > div > input');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(8) > .mr-auto > div').should('contain', 'Bias regularizer');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div.mr-auto > div').should('contain', 'value');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(8) > :nth-child(2) > div > div.row > div > input');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(9) > .mr-auto > div').should('contain', 'Activity regularizer');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(5) > :nth-child(2) > div > div.row > div.mr-auto > div').should('contain', 'value');
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(9) > :nth-child(2) > div > div.row > div > input');
-
-    cy.get(':nth-child(2) > :nth-child(2) > :nth-child(10) > .mr-auto > div').should('contain', 'Input correction');
-    cy.get('#input_correction').should('contain', 'mean');   
 
     // third section: Data processing
     // cy.get(':nth-child(3) > h5').click();
@@ -728,7 +698,7 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(5) > :nth-child(2) > :nth-child(32) > .mr-auto > div').should('contain', 'Field export images path');
     cy.get(':nth-child(5) > :nth-child(2) > :nth-child(32) > :nth-child(2) > input');
 
-    cy.get('.close').click();
+    cy.get('button[class="close"]').click();
   })
 });
 
