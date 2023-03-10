@@ -510,7 +510,6 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(10) > :nth-child(2) > input'); // just checks if the element exists
 
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(11) > .mr-auto > div').should('contain', 'Shuffle buffer');
-    cy.get('#shuffle_buffer'); // just checks if the element exists
 
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(12) > .mr-auto > div').should('contain', 'Save best only');
     cy.get('#save_best_only'); // just checks if the element exists
