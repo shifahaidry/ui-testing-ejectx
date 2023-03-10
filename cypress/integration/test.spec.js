@@ -539,10 +539,6 @@ describe("Workspace tests", function () {
 
     // third section: Data processing
     // cy.get(':nth-child(3) > h5').click();
-    cy.get(':nth-child(3) > :nth-child(2) > :nth-child(1) > .mr-auto > div').should('contain', 'Augmentation count');
-    cy.get(':nth-child(3) > :nth-child(2) > :nth-child(1) > :nth-child(2) > input');
-
-
     cy.get(':nth-child(3) > :nth-child(2) > :nth-child(2) > .mr-auto > div').should('contain', 'Batch normalization');
     cy.get('#batch_normalization');
 
@@ -555,7 +551,8 @@ describe("Workspace tests", function () {
 
     // fourth section: Augmentations
     // cy.get(':nth-child(4) > h5').click();
-    // this is set dynamically by user, so we can't assume anything for this test. 
+    cy.get(':nth-child(4) > :nth-child(2) > :nth-child(1) > .mr-auto > div').should('contain', 'Augmentation count');
+    cy.get(':nth-child(4) > :nth-child(2) > :nth-child(1) > :nth-child(2) > input');
 
     // fifth section: Scripts and Folders
     // cy.get(':nth-child(5) > h5').click();
