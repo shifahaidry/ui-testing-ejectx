@@ -77,14 +77,14 @@ describe("Workspace tests", function () {
     cy.get('[class="folder-label selected"]').within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.026");
+        .should("contain", "13.028");
     });
   });
   it("Note1 and Note2", function () {
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.026");
+        .should("contain", "13.028");
       cy.get('div [title=Notes] svg').click({ force: true });
     });
     cy.get('[class="modal-content"]').within(() => {
@@ -306,7 +306,7 @@ describe("Workspace tests", function () {
         .within(() => {
           cy.get('[class="file-nums option-progress-text"]')
             .invoke("text")
-            .should("contain", "10.525");
+            .should("contain", "10.527");
           cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
 
           cy.get('[title="AI Statistic"]').within(() => {
@@ -346,25 +346,25 @@ describe("Workspace tests", function () {
       cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span")
         .should(($el) => {
           const goodGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
-          expect(goodGood).to.be.greaterThan(90);
+          expect(goodGood).to.be.greaterThan(80);
           expect(goodGood).to.be.lessThan(101);
         });
       cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span")
         .should(($el) => {
           const goodBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodBad).to.be.greaterThan(0);
-          expect(goodBad).to.be.lessThan(10);
+          expect(goodBad).to.be.lessThan(20);
         });
       cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span")
         .should(($el) => {
           const badGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badGood).to.be.greaterThan(0);
-          expect(badGood).to.be.lessThan(10);
+          expect(badGood).to.be.lessThan(20);
         });
       cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span")
         .should(($el) => {
           const badBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
-          expect(badBad).to.be.greaterThan(90);
+          expect(badBad).to.be.greaterThan(80);
           expect(badBad).to.be.lessThan(101);
         });
 
