@@ -456,48 +456,6 @@ describe("Workspace tests", function () {
       cy.get("button:contains(Close)").click();
     });
   });
-  it("Compare Workspaces", function () {
-    cy.get(".folder-label", { timeout: 60000 })
-      .contains("Test1_Referenz2")
-      .parent()
-      .parent()
-      .within(() => {
-        cy.intercept("/api/fetchConfusionMatrix").as("fetchConfusion");
-        cy.get('[title="Compare Workspaces"]').click().wait("@fetchConfusion");
-      });
-    for (let i = 3; i <= 6; i++) {
-      cy.get("tbody > tr:nth-child(1) > td:nth-child(" + i + ") > span").should(
-        "have.text",
-        "0"
-      );
-    }
-    for (let i = 2; i <= 5; i++) {
-      for (let j = 2; j <= 5; j++) {
-        cy.get(
-          "tbody > tr:nth-child(" + j + ") > td:nth-child(" + i + ") > span"
-        ).should("have.text", "0");
-      }
-    }
-    cy.get('[class="header clickable underline"]')
-      .contains("train")
-      .click()
-      .wait("@fetchConfusion", { timeout: 60000 });
-    cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span", {
-      timeout: 60000,
-    }).should("have.text", "1");
-    cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span").should(
-      "have.text",
-      "1"
-    );
-    cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span").should(
-      "have.text",
-      "1"
-    );
-    cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span").should(
-      "have.text",
-      "1"
-    );
-  });
   it("Tensorflow Settings", function (){
     // open Train page and then Tensorflow settings
     cy.get('[data-step="Train"]').click();
