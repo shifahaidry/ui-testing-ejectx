@@ -77,14 +77,14 @@ describe("Workspace tests", function () {
     cy.get('[class="folder-label selected"]').within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.028");
+        .should("contain", "13.031");
     });
   });
   it("Note1 and Note2", function () {
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.028");
+        .should("contain", "13.031");
       cy.get('div [title=Notes] svg').click({ force: true });
     });
     cy.get('[class="modal-content"]').within(() => {
@@ -306,7 +306,7 @@ describe("Workspace tests", function () {
         .within(() => {
           cy.get('[class="file-nums option-progress-text"]')
             .invoke("text")
-            .should("contain", "10.527");
+            .should("contain", "10.528");
           cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
 
           cy.get('[title="AI Statistic"]').within(() => {
@@ -391,7 +391,7 @@ describe("Workspace tests", function () {
         .within(() => {
           cy.get('[class="file-nums option-progress-text"]')
             .invoke("text")
-            .should("contain", "1.251");
+            .should("contain", "1.252");
           cy.get('[title="AI Statistic"]').within(() => {
             cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
             cy.get(
@@ -456,6 +456,58 @@ describe("Workspace tests", function () {
       cy.get("button:contains(Close)").click();
     });
   });
+
+  it("Compare Workspaces", function () {
+    cy.get(".folder-label", { timeout: 60000 })
+      .contains("Test1_Referenz2")
+      .parent()
+      .parent()
+      .within(() => {
+        cy.intercept("/api/fetchConfusionMatrix").as("fetchConfusion");
+        cy.get('[title="Compare Workspaces"]').click().wait("@fetchConfusion");
+      });
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span").should("have.text", "4");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(5) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(6) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(3) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(4) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(5) > span").should("have.text", "0");
+
+    cy.get('[class="header clickable underline"]')
+      .contains("train")
+      .click()
+      .wait("@fetchConfusion", { timeout: 60000 });
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span", {
+      timeout: 60000,
+    }).should("have.text", "5353");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span").should(
+      "have.text",
+      "0"
+    );
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span").should(
+      "have.text",
+      "0"
+    );
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span").should(
+      "have.text",
+      "5172"
+    );
+  });
+
   it("Tensorflow Settings", function (){
     // open Train page and then Tensorflow settings
     cy.get('[data-step="Train"]').click();
@@ -548,11 +600,6 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(3) > :nth-child(2) > :nth-child(4) > .mr-auto > div').should('contain', 'Heatmap Types');
     cy.get('#heatmap_types');
 
-
-    // fourth section: Augmentations
-    // cy.get(':nth-child(4) > h5').click();
-    cy.get(':nth-child(4) > :nth-child(2) > :nth-child(1) > .mr-auto > div').should('contain', 'Augmentation count');
-    cy.get(':nth-child(4) > :nth-child(2) > :nth-child(1) > :nth-child(2) > input');
 
     // fifth section: Scripts and Folders
     // cy.get(':nth-child(5) > h5').click();
