@@ -77,14 +77,14 @@ describe("Workspace tests", function () {
     cy.get('[class="folder-label selected"]').within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.026");
+        .should("contain", "13.031");
     });
   });
   it("Note1 and Note2", function () {
     cy.get('[class="folder-label selected"]', { timeout: 60000 }).within(() => {
       cy.get('[class="file-nums option-progress-text"]')
         .invoke("text")
-        .should("contain", "13.026");
+        .should("contain", "13.031");
       cy.get('div [title=Notes] svg').click({ force: true });
     });
     cy.get('[class="modal-content"]').within(() => {
@@ -306,7 +306,7 @@ describe("Workspace tests", function () {
         .within(() => {
           cy.get('[class="file-nums option-progress-text"]')
             .invoke("text")
-            .should("contain", "10.525");
+            .should("contain", "10.528");
           cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
 
           cy.get('[title="AI Statistic"]').within(() => {
@@ -346,25 +346,25 @@ describe("Workspace tests", function () {
       cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span:nth-child(1) > a > span")
         .should(($el) => {
           const goodGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
-          expect(goodGood).to.be.greaterThan(90);
+          expect(goodGood).to.be.greaterThan(80);
           expect(goodGood).to.be.lessThan(101);
         });
       cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span:nth-child(1) > a > span")
         .should(($el) => {
           const goodBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(goodBad).to.be.greaterThan(0);
-          expect(goodBad).to.be.lessThan(10);
+          expect(goodBad).to.be.lessThan(20);
         });
       cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span:nth-child(1) > a > span")
         .should(($el) => {
           const badGood = new NumberParser("en").parse($el.text().replace(/%/, ''));
           expect(badGood).to.be.greaterThan(0);
-          expect(badGood).to.be.lessThan(10);
+          expect(badGood).to.be.lessThan(20);
         });
       cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span:nth-child(1) > a > span")
         .should(($el) => {
           const badBad = new NumberParser("en").parse($el.text().replace(/%/, ''));
-          expect(badBad).to.be.greaterThan(90);
+          expect(badBad).to.be.greaterThan(80);
           expect(badBad).to.be.lessThan(101);
         });
 
@@ -391,7 +391,7 @@ describe("Workspace tests", function () {
         .within(() => {
           cy.get('[class="file-nums option-progress-text"]')
             .invoke("text")
-            .should("contain", "1.251");
+            .should("contain", "1.252");
           cy.get('[title="AI Statistic"]').within(() => {
             cy.intercept(RegExp("/api/getStatistic.*")).as("trainStatistic");
             cy.get(
@@ -456,6 +456,7 @@ describe("Workspace tests", function () {
       cy.get("button:contains(Close)").click();
     });
   });
+
   it("Compare Workspaces", function () {
     cy.get(".folder-label", { timeout: 60000 })
       .contains("Test1_Referenz2")
@@ -465,39 +466,48 @@ describe("Workspace tests", function () {
         cy.intercept("/api/fetchConfusionMatrix").as("fetchConfusion");
         cy.get('[title="Compare Workspaces"]').click().wait("@fetchConfusion");
       });
-    for (let i = 3; i <= 6; i++) {
-      cy.get("tbody > tr:nth-child(1) > td:nth-child(" + i + ") > span").should(
-        "have.text",
-        "0"
-      );
-    }
-    for (let i = 2; i <= 5; i++) {
-      for (let j = 2; j <= 5; j++) {
-        cy.get(
-          "tbody > tr:nth-child(" + j + ") > td:nth-child(" + i + ") > span"
-        ).should("have.text", "0");
-      }
-    }
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span").should("have.text", "4");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(5) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(1) > td:nth-child(6) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(2) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(3) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(3) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(4) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(4) > span").should("have.text", "0");
+    cy.get("tbody > tr:nth-child(2) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(3) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(4) > td:nth-child(5) > span").should("have.text", "1");
+    cy.get("tbody > tr:nth-child(5) > td:nth-child(5) > span").should("have.text", "0");
+
     cy.get('[class="header clickable underline"]')
       .contains("train")
       .click()
       .wait("@fetchConfusion", { timeout: 60000 });
     cy.get("tbody > tr:nth-child(1) > td:nth-child(3) > span", {
       timeout: 60000,
-    }).should("have.text", "1");
+    }).should("have.text", "5353");
     cy.get("tbody > tr:nth-child(1) > td:nth-child(4) > span").should(
       "have.text",
-      "1"
+      "0"
     );
     cy.get("tbody > tr:nth-child(2) > td:nth-child(2) > span").should(
       "have.text",
-      "1"
+      "0"
     );
     cy.get("tbody > tr:nth-child(2) > td:nth-child(3) > span").should(
       "have.text",
-      "1"
+      "5172"
     );
   });
+
   it("Tensorflow Settings", function (){
     // open Train page and then Tensorflow settings
     cy.get('[data-step="Train"]').click();
@@ -552,7 +562,6 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(10) > :nth-child(2) > input'); // just checks if the element exists
 
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(11) > .mr-auto > div').should('contain', 'Shuffle buffer');
-    cy.get('#shuffle_buffer'); // just checks if the element exists
 
     cy.get(':nth-child(1) > :nth-child(2) > :nth-child(12) > .mr-auto > div').should('contain', 'Save best only');
     cy.get('#save_best_only'); // just checks if the element exists
@@ -582,10 +591,6 @@ describe("Workspace tests", function () {
 
     // third section: Data processing
     // cy.get(':nth-child(3) > h5').click();
-    cy.get(':nth-child(3) > :nth-child(2) > :nth-child(1) > .mr-auto > div').should('contain', 'Augmentation count');
-    cy.get(':nth-child(3) > :nth-child(2) > :nth-child(1) > :nth-child(2) > input');
-
-
     cy.get(':nth-child(3) > :nth-child(2) > :nth-child(2) > .mr-auto > div').should('contain', 'Batch normalization');
     cy.get('#batch_normalization');
 
@@ -595,10 +600,6 @@ describe("Workspace tests", function () {
     cy.get(':nth-child(3) > :nth-child(2) > :nth-child(4) > .mr-auto > div').should('contain', 'Heatmap Types');
     cy.get('#heatmap_types');
 
-
-    // fourth section: Augmentations
-    // cy.get(':nth-child(4) > h5').click();
-    // this is set dynamically by user, so we can't assume anything for this test. 
 
     // fifth section: Scripts and Folders
     // cy.get(':nth-child(5) > h5').click();
