@@ -11,3 +11,6 @@ Cypress.on("uncaught:exception", (err, runnable) => {
     return false;
   }
 });
+
+// For verifying download is happening
+require('cy-verify-downloads').addCustomCommand();

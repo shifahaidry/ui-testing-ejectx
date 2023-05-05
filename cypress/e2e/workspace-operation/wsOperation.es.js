@@ -1,0 +1,20 @@
+module.exports = {
+  manageIcon: '[data-step="Manage"]',
+  labelIcon: '[data-step="Label"]',
+
+  workspaceName: 'div.folder-label-name',
+  duplicateWs: 'div[title="Duplicate Workspace"]',
+  fileSize: 'div[title="Folder Size"]',
+  fileCount: 'div[title="Percentage Classified"]',
+  backUpWorkSpace: 'div[title="Backup Workspace"]',
+  renameWorkSpace: 'div[title="Rename Workspace"]',
+  selectedWorkSpaceName: 'div.rename-input > input',
+  deleteWs: 'div[title="Delete Workspace"]',
+  confirmDelete: '.danger',
+  cancelDialog: 'button.vue-dialog-button',
+  deleteImages: 'span.folder-name',
+  backupDBWsIcon: 'svg.fa-icon',
+  downloadBackup: 'div[title="Download Backup"]',
+  restoreBackup: 'div[title="Restore Backup"]',
+  deleteBackup: 'div[title="Delete Backup"]',
+}
