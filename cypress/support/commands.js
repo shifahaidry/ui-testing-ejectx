@@ -1,3 +1,8 @@
+/**
+ * This command is used to verify downloaded files
+ */
+require('cy-verify-downloads').addCustomCommand();
+
 Cypress.Commands.add('login' , function() { 
     const username=Cypress.env('tester_username')
     const password=Cypress.env('tester_password')
@@ -11,3 +16,13 @@ Cypress.Commands.add('login' , function() {
       })
 
 })
+
+/**
+ * This Command can be used for verifying the status of URl
+ * e.g cy.verifyRedirect('/launchpad')
+ */
+ Cypress.Commands.add('verifyRedirect', (expectedUrl) => {
+  cy.url().should('eq', Cypress.config('baseUrl') + expectedUrl)
+})
+
+

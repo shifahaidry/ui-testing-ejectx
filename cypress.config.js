@@ -1,4 +1,6 @@
 const { defineConfig } = require('cypress')
+const { verifyDownloadTasks } = require('cy-verify-downloads');
+
 
 module.exports = defineConfig({
   pageLoadTimeout: 120000,
@@ -18,6 +20,7 @@ module.exports = defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
+      on('task', verifyDownloadTasks)
       return require('./cypress/plugins/index.js')(on, config)
     },
     baseUrl: 'https://test.ejectx.de',
