@@ -1,16 +1,18 @@
 {
   "name": "ejectx",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "setup": "npm ci",
     "test-headless": "npx cypress run",
+    "test-headed": "npx cypress run --headed",
     "test": "npx cypress open"
   },
   "author": "Ahmed Fateen",
   "license": "ISC",
   "devDependencies": {
+    "cy-verify-downloads": "^0.1.14",
     "cypress": "^12.8.1",
     "cypress-mochawesome-reporter": "^2.3.0",
     "mocha": "^9.1.2",
